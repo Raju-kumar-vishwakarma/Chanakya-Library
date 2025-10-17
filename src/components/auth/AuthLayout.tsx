@@ -14,7 +14,7 @@ const AuthLayout = ({ children, title, subtitle }: AuthLayoutProps) => {
       <div className="flex-1 flex items-center justify-center p-8 bg-background">
         <div className="w-full max-w-md">
           <div className="mb-8">
-            <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold mb-2 ">
               Chanakya Library
             </h1>
             <h2 className="text-2xl font-semibold text-foreground mb-2">{title}</h2>
