@@ -40,7 +40,7 @@ const Index = () => {
             >
               Student Login
             </Button>
-          
+
           </div>
         </div>
       </section>
@@ -121,7 +121,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="py-8 bg-card border-t border-border/50">
         <div className="container mx-auto px-4 text-center text-muted-foreground">
-          <p>© 2025 Chanakya Library. All rights reserved.</p>
+          <p>© 2024 Chanakya Library. All rights reserved.</p>
         </div>
       </footer>
     </div>

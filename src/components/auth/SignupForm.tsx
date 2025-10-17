@@ -59,7 +59,7 @@ const SignupForm = () => {
 
         toast({
           title: "Account created!",
-          description: "Welcome to XYZ Library. You can now sign in.",
+          description: "Welcome to Chanakya Library. You can now sign in.",
         });
 
         navigate("/login");

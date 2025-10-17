@@ -42,7 +42,7 @@ const AdminReportsEnhanced = () => {
       .from("user_roles")
       .select("role")
       .eq("user_id", session.user.id)
-      .single();
+      .maybeSingle();
 
     if (roleError || !roleData || roleData.role !== "admin") {
       navigate("/student");
@@ -52,14 +52,14 @@ const AdminReportsEnhanced = () => {
   const fetchStudents = async () => {
     try {
       const { data: studentRoles } = await supabase
-        .from("user_roles" as any)
+        .from("user_roles")
         .select("user_id")
         .eq("role", "student");
 
-      if (studentRoles) {
+      if (studentRoles && studentRoles.length > 0) {
         const userIds = studentRoles.map((r: any) => r.user_id);
         const { data: profiles } = await supabase
-          .from("profiles" as any)
+          .from("profiles")
           .select("*")
           .in("id", userIds);
 
@@ -74,8 +74,11 @@ const AdminReportsEnhanced = () => {
     setLoading(true);
     try {
       let query = supabase
-        .from("attendance" as any)
-        .select("*, profiles!inner(full_name, student_id)")
+        .from("attendance")
+        .select(`
+          *,
+          profiles!attendance_user_id_fkey(full_name, student_id)
+        `)
         .gte("check_in", `${startDate}T00:00:00`)
         .lte("check_in", `${endDate}T23:59:59`);
 
@@ -99,8 +102,8 @@ const AdminReportsEnhanced = () => {
       }
 
       const formattedData = attendanceData.map((record: any) => ({
-        student_id: record.profiles.student_id,
-        student_name: record.profiles.full_name,
+        student_id: record.profiles?.student_id || "N/A",
+        student_name: record.profiles?.full_name || "Unknown User",
         check_in: record.check_in,
         check_out: record.check_out,
         duration: calculateDuration(record.check_in, record.check_out),
@@ -145,10 +148,10 @@ const AdminReportsEnhanced = () => {
               Back
             </Button>
             <div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                 Reports & Analytics
               </h1>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 Generate and export attendance reports
               </p>
             </div>

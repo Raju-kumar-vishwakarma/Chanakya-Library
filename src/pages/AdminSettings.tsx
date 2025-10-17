@@ -90,22 +90,22 @@ const AdminSettings = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted mt-8">
+    <div className="min-h-screen bg-gradient-to-br from-background to-muted">
       {/* Header */}
       <header className="border-b border-border/50 bg-card/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2 sm:gap-4">
+        <div className="container mx-auto px-4 py-3 flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-3 w-full sm:w-auto">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => navigate("/admin")}
               className="hover:bg-muted"
             >
-              <ArrowLeft className="mr-1 sm:mr-2 h-4 w-4" />
-              Back
+              <ArrowLeft className="mr-1 h-4 w-4" />
+              <span className="hidden sm:inline">Back</span>
             </Button>
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                 System Settings
               </h1>
               <p className="text-xs sm:text-sm text-muted-foreground">
@@ -118,7 +118,7 @@ const AdminSettings = () => {
             onClick={handleSave}
             disabled={loading}
             size="sm"
-            className="w-full sm:w-auto bg-gradient-to-r from-primary to-secondary"
+            className="bg-gradient-to-r from-primary to-secondary w-full sm:w-auto"
           >
             <Save className="mr-2 h-4 w-4" />
             Save Settings
@@ -126,13 +126,13 @@ const AdminSettings = () => {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-3 sm:px-4 py-6 sm:py-8">
-        <div className="grid gap-6 sm:gap-8 md:grid-cols-2">
+      {/* Main content */}
+      <main className="container mx-auto px-4 py-6 sm:py-8">
+        <div className="grid gap-6 sm:grid-cols-2">
           {/* General Settings */}
-          <Card className="shadow-sm">
+          <Card className="shadow-md hover:shadow-lg transition-all">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <CardTitle className="flex items-center gap-2">
                 <Clock className="h-5 w-5" />
                 General Settings
               </CardTitle>
@@ -147,7 +147,6 @@ const AdminSettings = () => {
                   onChange={(e) =>
                     setSettings({ ...settings, library_name: e.target.value })
                   }
-                  className="text-sm sm:text-base"
                 />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -158,7 +157,10 @@ const AdminSettings = () => {
                     type="time"
                     value={settings.opening_time}
                     onChange={(e) =>
-                      setSettings({ ...settings, opening_time: e.target.value })
+                      setSettings({
+                        ...settings,
+                        opening_time: e.target.value,
+                      })
                     }
                   />
                 </div>
@@ -169,7 +171,10 @@ const AdminSettings = () => {
                     type="time"
                     value={settings.closing_time}
                     onChange={(e) =>
-                      setSettings({ ...settings, closing_time: e.target.value })
+                      setSettings({
+                        ...settings,
+                        closing_time: e.target.value,
+                      })
                     }
                   />
                 </div>
@@ -178,50 +183,52 @@ const AdminSettings = () => {
           </Card>
 
           {/* Attendance Settings */}
-          <Card className="shadow-sm">
+          <Card className="shadow-md hover:shadow-lg transition-all">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <CardTitle className="flex items-center gap-2">
                 <QrCode className="h-5 w-5" />
                 Attendance Settings
               </CardTitle>
               <CardDescription>Configure attendance tracking</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="space-y-0.5">
-                  <Label>QR Code Attendance</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Enable QR code scanning for attendance
-                  </p>
+              {[
+                {
+                  label: "QR Code Attendance",
+                  desc: "Enable QR code scanning for attendance",
+                  key: "qr_attendance_enabled",
+                },
+                {
+                  label: "Auto Check-out",
+                  desc: "Auto check-out at closing time",
+                  key: "auto_checkout_enabled",
+                },
+              ].map((item) => (
+                <div
+                  key={item.key}
+                  className="flex items-center justify-between flex-wrap gap-2"
+                >
+                  <div className="space-y-0.5">
+                    <Label>{item.label}</Label>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      {item.desc}
+                    </p>
+                  </div>
+                  <Switch
+                    checked={settings[item.key as keyof LibrarySettings] as boolean}
+                    onCheckedChange={(checked) =>
+                      setSettings({ ...settings, [item.key]: checked })
+                    }
+                  />
                 </div>
-                <Switch
-                  checked={settings.qr_attendance_enabled}
-                  onCheckedChange={(checked) =>
-                    setSettings({ ...settings, qr_attendance_enabled: checked })
-                  }
-                />
-              </div>
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="space-y-0.5">
-                  <Label>Auto Check-out</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Auto check-out at closing time
-                  </p>
-                </div>
-                <Switch
-                  checked={settings.auto_checkout_enabled}
-                  onCheckedChange={(checked) =>
-                    setSettings({ ...settings, auto_checkout_enabled: checked })
-                  }
-                />
-              </div>
+              ))}
             </CardContent>
           </Card>
 
           {/* Notifications */}
-          <Card className="shadow-sm">
+          <Card className="shadow-md hover:shadow-lg transition-all">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <CardTitle className="flex items-center gap-2">
                 <Bell className="h-5 w-5" />
                 Notifications
               </CardTitle>
@@ -229,11 +236,11 @@ const AdminSettings = () => {
                 Configure notification preferences
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="space-y-0.5">
+            <CardContent>
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div>
                   <Label>Email Notifications</Label>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs sm:text-sm text-muted-foreground">
                     Send email alerts to students
                   </p>
                 </div>
@@ -248,13 +255,11 @@ const AdminSettings = () => {
           </Card>
 
           {/* Notice Board */}
-          <Card className="shadow-sm">
+          <Card className="shadow-md hover:shadow-lg transition-all sm:col-span-2">
             <CardHeader>
-              <CardTitle className="text-base sm:text-lg">
-                Notice Board
-              </CardTitle>
+              <CardTitle>Notice Board</CardTitle>
               <CardDescription>
-                Display message on login screen
+                Display a message on the student login screen
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -265,7 +270,6 @@ const AdminSettings = () => {
                   setSettings({ ...settings, notice_text: e.target.value })
                 }
                 rows={5}
-                className="text-sm sm:text-base"
               />
             </CardContent>
           </Card>
