@@ -75,10 +75,7 @@ const AdminReportsEnhanced = () => {
     try {
       let query = supabase
         .from("attendance")
-        .select(`
-          *,
-          profiles!attendance_user_id_fkey(full_name, student_id)
-        `)
+        .select("*")
         .gte("check_in", `${startDate}T00:00:00`)
         .lte("check_in", `${endDate}T23:59:59`);
 
@@ -101,14 +98,33 @@ const AdminReportsEnhanced = () => {
         return;
       }
 
-      const formattedData = attendanceData.map((record: any) => ({
-        student_id: record.profiles?.student_id || "N/A",
-        student_name: record.profiles?.full_name || "Unknown User",
-        check_in: record.check_in,
-        check_out: record.check_out,
-        duration: calculateDuration(record.check_in, record.check_out),
-        date: new Date(record.check_in).toLocaleDateString(),
-      }));
+     const userIds = Array.from(
+        new Set(attendanceData.map((r: any) => r.user_id).filter(Boolean))
+      );
+
+      let profileMap: Record<string, { full_name: string | null; student_id: string | null }> = {};
+      if (userIds.length > 0) {
+        const { data: profilesData, error: profilesError } = await supabase
+          .from("profiles")
+          .select("id, full_name, student_id")
+          .in("id", userIds);
+        if (profilesError) throw profilesError;
+        profileMap = Object.fromEntries(
+          (profilesData || []).map((p: any) => [p.id, { full_name: p.full_name, student_id: p.student_id }])
+        );
+      }
+
+      const formattedData = (attendanceData || []).map((record: any) => {
+        const prof = profileMap[record.user_id] || {};
+        return {
+          student_id: (prof as any).student_id || "N/A",
+          student_name: (prof as any).full_name || "Unknown User",
+          check_in: record.check_in,
+          check_out: record.check_out,
+          duration: calculateDuration(record.check_in, record.check_out),
+          date: new Date(record.check_in).toLocaleDateString(),
+        };
+      });
 
       const filename = `attendance_report_${startDate}_to_${endDate}`;
       const title = `Attendance Report (${startDate} to ${endDate})`;

@@ -142,6 +142,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_library_status: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          available: number
+          current_occupied: number
+          total_seats: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

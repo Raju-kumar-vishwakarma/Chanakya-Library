@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { LogOut, QrCode, Clock, Calendar, BookOpen } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import LibraryStatus from "@/components/student/LibraryStatus";
 
 interface AttendanceRecord {
   id: string;
@@ -20,7 +21,9 @@ const StudentDashboard = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
-  const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([]);
+  const [attendanceRecords, setAttendanceRecords] = useState<
+    AttendanceRecord[]
+  >([]);
   const [isCheckedIn, setIsCheckedIn] = useState(false);
 
   useEffect(() => {
@@ -30,14 +33,18 @@ const StudentDashboard = () => {
   }, []);
 
   const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
     if (!session) {
       navigate("/login");
     }
   };
 
   const fetchProfile = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (user) {
       const { data } = await supabase
         .from("profiles" as any)
@@ -50,7 +57,9 @@ const StudentDashboard = () => {
 
   const fetchAttendance = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (user) {
         const { data, error } = await supabase
           .from("attendance")
@@ -77,14 +86,14 @@ const StudentDashboard = () => {
 
   const handleCheckIn = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (user) {
-        const { error } = await supabase
-          .from("attendance" as any)
-          .insert({
-            user_id: user.id,
-            purpose: "Study",
-          } as any);
+        const { error } = await supabase.from("attendance" as any).insert({
+          user_id: user.id,
+          purpose: "Study",
+        } as any);
 
         if (error) throw error;
 
@@ -106,7 +115,9 @@ const StudentDashboard = () => {
 
   const handleCheckOut = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (user) {
         const lastRecord = attendanceRecords[0];
         const { error } = await supabase
@@ -189,7 +200,33 @@ const StudentDashboard = () => {
           <h2 className="text-3xl font-bold text-foreground mb-2">
             Welcome, {profile?.full_name}
           </h2>
-          <p className="text-muted-foreground">Student ID: {profile?.student_id}</p>
+          <p className="text-muted-foreground">
+            Student ID: {profile?.student_id}
+          </p>
+        </div>
+
+        {/* Quick Info */}
+        <div className="grid gap-6 md:grid-cols-2 mb-8">
+          <LibraryStatus />
+          <Card className="border-border/50">
+            <CardHeader>
+              <CardTitle>Your Seat</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Seat Number
+                  </p>
+                  <p className="text-2xl font-semibold">
+                    {profile?.seat_number
+                      ? profile.seat_number
+                      : "Not assigned"}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Check In/Out Card */}
@@ -203,7 +240,9 @@ const StudentDashboard = () => {
           <CardContent>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground mb-2">Current Status</p>
+                <p className="text-sm text-muted-foreground mb-2">
+                  Current Status
+                </p>
                 <Badge
                   variant={isCheckedIn ? "default" : "secondary"}
                   className="text-sm"
